@@ -17,6 +17,8 @@ public class LocalController {
     @Autowired
     private LocalService localService;
 
+
+
     @RequestMapping("/getLocalByPage")
     public @ResponseBody
     PageBean getSnackByPage(Integer cid,Integer currentPage,Integer rows){
