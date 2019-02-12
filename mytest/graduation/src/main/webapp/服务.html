@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>服务</title>
+    <link rel="stylesheet" type="text/css" href="css/common.css"/>
+    <link rel="stylesheet" type="text/css" href="css/style.css"/>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/>
+    <script src="js/jquery-3.3.1.js" type="text/javascript"></script>
+    <script type="text/javascript" src="js/include.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <script src="js/jquery-3.3.1.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+
+    <script>
+
+       /* function getServiceByPage(cid, currentPage, rows) {
+            var container=null;
+            if (cid==1){
+                container=$("#hotel");
+            }
+            if (cid==2){
+                container=$("#ticket");
+            }
+            if (cid==3){
+                container=$("#seeingbus");
+            }
+            if (cid==4){
+                container=$("#guider");
+            }
+            $.ajax({
+                // 编写json格式，设置属性和值
+                url:"service/getServiceByPage",
+                //contentType:"application/json;charset=UTF-8",
+                //解析json对象为标准的json串
+                data:"cid="+cid+"&currentPage="+currentPage+"&rows="+rows+"",
+                type:"post",
+                success:function(data){
+                    container.html("");
+                    //alert(data.length)
+                    $.each(data,function (index, obj) {
+                        //alert(index)
+                        if (index%4==0){
+                            container.append("<div class=\"row\">");
+                        }
+                        container.append('<div class="col-md-3">\n' +
+                            '                        <a href="javascript:;">\n' +
+                            '                            <img src="'+obj.logo+'" alt="">\n' +
+                            '                            <div class="has_border">\n' +
+                            '                                <h3>'+obj.desdcribt+'</h3>\n' +
+                            '                                <div class="price">网付价<em>￥</em><strong>'+obj.price+'</strong><em>起</em></div>\n' +
+                            '                            </div>\n' +
+                            '                        </a>\n' +
+                            '                    </div>');
+                        if (index%4==0){
+                            container.append("</div>");
+                        }
+                    })
+                }
+            });
+        }*/
+
+       function getServiceByPage(cid, currentPage, rows) {
+           var container;
+           if (cid == 1) {
+               container = $("#hotel");
+           }
+           if (cid == 2) {
+               container = $("#ticket");
+           }
+           if (cid == 3) {
+               container = $("#bus");
+           }
+           if (cid == 4) {
+               container = $("#guider");
+           }
+           container.html("");
+           $.ajax({
+               // 编写json格式，设置属性和值
+               url: "service/getServiceByPage",
+               //contentType:"application/json;charset=UTF-8",
+               //解析json对象为标准的json串
+               data: "cid=" + cid + "&currentPage=" + currentPage + "&rows=" + rows + "",
+               type: "post",
+               success: function (data) {
+                   var totalPage=data.totalPage;
+                   var pages="";
+                   var begin;
+                   var end;
+                   if (totalPage>10){
+                       if (currentPage<=5){
+                           begin=1;end=10
+                       }
+                       else if (currentPage>totalPage-4){
+                           begin=totalPage-10;
+                           end=totalPage;
+                       } else {
+                           begin=currentPage-5;
+                           end=currentPage+4;
+                       }
+                   }else {
+                       begin=1;
+                       end=totalPage;
+                   }
+
+
+                   if (currentPage==1){
+                       pages=pages+"<li class=\"threeword\" ><a href=\"#\">上一页</a></li>";
+                   }else {
+                       var lastPage=currentPage-1;
+                       pages=pages+"<li class=\"threeword\" onclick=\"getServiceByPage("+cid+","+lastPage+",\'"+rows+"\')\" ><a href=\"#\">上一页</a></li>";
+                   }
+
+                   for (var i = begin; i <= end; i++) {
+                       if(currentPage==i) {
+                           var everyPage=" <li class=\"active\" onclick=\"getServiceByPage("+cid+","+i+",'"+rows+"')\"><a href=\"javascript:void(0)\">"+i+"</a></li>";
+                           //var everyPage="<li onclick=\'load("+i+","+cid+",'"+rname+"')' class=\"curPage\"><a href='javascript:void(0)'>"+i+"</a></li>";
+                       }else {
+                           var everyPage=" <li onclick=\"getServiceByPage("+cid+","+i+",'"+rows+"')\"><a href=\"javascript:void(0)\">"+i+"</a></li>";
+                           //var everyPage="<li onclick='load("+i+","+cid+",'"+rname+"')'><a href='javascript:void(0)'>"+i+"</a></li>";
+                       }
+                       pages =pages+everyPage;
+
+                   }
+
+                   if (currentPage<totalPage){
+                       var next=currentPage+1;
+                       var nextPage="<li class=\"threeword\" onclick=\"getServiceByPage("+cid+","+next+",\'"+rows+"\')\" id=\"nextPage\"><a href=\"javascript:void(0);\">下一页</a></li>";
+                       pages+=nextPage;
+                   }else {
+                       var nextPage="<li class=\"threeword\" id=\"nextPage\"><a href=\"javascript:void(0);\">下一页</a></li>";
+                       pages+=nextPage;
+                   }
+                   var endPage="<li class=\"threeword\" onclick=\"getServiceByPage("+cid+","+totalPage+",\'"+rows+"\')\"><a href=\"javascript:void(0);\">末页</a></li>";
+                   $("#pageNum").html(pages);
+
+                   $.each(data.list, function (index, obj) {
+                       if (index%4==0){
+                           container.append("<div class=\"row\">");
+                       }
+                       container.append('<div class="col-md-3">\n' +
+                           '                        <a href="javascript:;">\n' +
+                           '                            <img src="'+obj.logo+'" alt="">\n' +
+                           '                            <div class="has_border">\n' +
+                           '                                <h3>'+obj.desdcribt+'</h3>\n' +
+                           '                                <div class="price">网付价<em>￥</em><strong>'+obj.price+'</strong><em>起</em></div>\n' +
+                           '                            </div>\n' +
+                           '                        </a>\n' +
+                           '                    </div>');
+                       if (index%4==0){
+                           container.append("</div>");
+                       }
+                   })
+               }
+           });
+       }
+
+        $(function () {
+            getServiceByPage(1,1,5);
+            $("#hotel_a").click(function () {
+                getServiceByPage(1,1,5);
+            })
+
+            $("#ticket_a").click(function () {
+                getServiceByPage(2,1,5);
+            })
+
+            $("#bus_a").click(function () {
+                getServiceByPage(3,1,5);
+            })
+
+            $("#guider_a").click(function () {
+                getServiceByPage(4,1,5);
+            })
+        })
+    </script>
+</head>
+<body>
+<div id="header"></div>
+<section class="hemai_jx">
+    <div class="jx_top">
+        <div class="jx_tit">
+            <img src="images/icon_5.jpg" alt="">
+            <span>黑马精选</span>
+        </div>
+        <!-- Nav tabs -->
+        <ul class="jx_tabs" role="tablist">
+            <li role="presentation" class="active">
+                <span></span>
+                <a href="#hotel" id="hotel_a" aria-controls="hotel" role="tab" data-toggle="tab">酒店</a>
+            </li>
+            <li role="presentation">
+                <span></span>
+                <a href="#ticket" id="ticket_a" aria-controls="ticket" role="tab" data-toggle="tab">门票预订</a>
+            </li>
+            <li role="presentation">
+                <span></span>
+                <a href="#seeingbus" id="bus_a" aria-controls="seeingbus" role="tab" data-toggle="tab">观光车</a>
+            </li>
+            <li role="presentation">
+                <span></span>
+                <a href="#guider" id="guider_a" aria-controls="guider" role="tab" data-toggle="tab">导游预约</a>
+            </li>
+        </ul>
+    </div>
+    <div class="jx_content">
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="hotel">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_4.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_4.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_4.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_4.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="ticket">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_1.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_1.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_1.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_1.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="bus">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_2.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_2.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_2.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_2.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div role="tabpanel" class="tab-pane" id="guider">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_2.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_2.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_2.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="javascript:;">
+                            <img src="images/jiangxuan_2.jpg" alt="">
+                            <div class="has_border">
+                                <h3>上海直飞三亚5天4晚自由行(春节预售+亲子/蜜月/休闲游首选+豪华酒店任选+接送机)</h3>
+                                <div class="price">网付价<em>￥</em><strong>889</strong><em>起</em></div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+    <nav>
+        <ul class="pagination" id="pageNum">
+        </ul>
+    </nav>
+</div>
+
+<div id="footer"></div>
+</body>
+</html>

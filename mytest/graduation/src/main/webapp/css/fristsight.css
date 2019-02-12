@@ -1,0 +1,20 @@
+#ul_gaikuang {
+    background-color: #5bc0de;
+    width: 80%;
+}
+#ul_tuijian{
+    width: 80%;
+
+    background-color: #5bc0de;
+}
+
+#ul_gaikuang li{
+    background-color: white;
+}
+#ul_tuijian li{
+    background-color: white;
+}
+
+#left{
+
+}

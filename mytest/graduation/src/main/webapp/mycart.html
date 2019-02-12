@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>店面展示</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script src="js/getParameter.js"></script>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery-3.3.1.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <!--导入布局js，共享header和footer-->
+    <script type="text/javascript" src="js/include.js"></script>
+
+    <script>
+        function getMyOrderByPage(cid, currentPage, rows) {
+            var container;
+            if (cid == 1) {
+                container = $("#ticketContainer");
+            }
+            if (cid == 2) {
+                container = $("#hotelContainer");
+            }
+            if (cid == 3) {
+                container = $("#busContainer");
+            }
+            if (cid == 4) {
+                container = $("#guiderContainer");
+            }
+            container.html("");
+            $.ajax({
+                // 编写json格式，设置属性和值
+                url: "order/getMyOrderByPage",
+                //contentType:"application/json;charset=UTF-8",
+                //解析json对象为标准的json串
+                data: "cid=" + cid + "&currentPage=" + currentPage + "&rows=" + rows + "",
+                type: "post",
+                success: function (data) {
+                    var totalPage=data.totalPage;
+                    var pages="";
+                    var begin;
+                    var end;
+                    if (totalPage>10){
+                        if (currentPage<=5){
+                            begin=1;end=10
+                        }
+                        else if (currentPage>totalPage-4){
+                            begin=totalPage-10;
+                            end=totalPage;
+                        } else {
+                            begin=currentPage-5;
+                            end=currentPage+4;
+                        }
+                    }else {
+                        begin=1;
+                        end=totalPage;
+                    }
+                    if (currentPage==1){
+                        pages=pages+"<li class=\"threeword\" ><a href=\"#\">上一页</a></li>";
+                    }else {
+                        var lastPage=currentPage-1;
+                        pages=pages+"<li class=\"threeword\" onclick=\"getMyOrderByPage("+cid+","+lastPage+",\'"+rows+"\')\" ><a href=\"#\">上一页</a></li>";
+                    }
+
+                    for (var i = begin; i <= end; i++) {
+                        if(currentPage==i) {
+                            var everyPage=" <li class=\"active\" onclick=\"getMyOrderByPage("+cid+","+i+",'"+rows+"')\"><a href=\"javascript:void(0)\">"+i+"</a></li>";
+                            //var everyPage="<li onclick=\'load("+i+","+cid+",'"+rname+"')' class=\"curPage\"><a href='javascript:void(0)'>"+i+"</a></li>";
+                        }else {
+                            var everyPage=" <li onclick=\"getMyOrderByPage("+cid+","+i+",'"+rows+"')\"><a href=\"javascript:void(0)\">"+i+"</a></li>";
+                            //var everyPage="<li onclick='load("+i+","+cid+",'"+rname+"')'><a href='javascript:void(0)'>"+i+"</a></li>";
+                        }
+                        pages =pages+everyPage;
+
+                    }
+
+                    if (currentPage<totalPage){
+                        var next=currentPage+1;
+                        var nextPage="<li class=\"threeword\" onclick=\"getMyOrderByPage("+cid+","+next+",\'"+rows+"\')\" id=\"nextPage\"><a href=\"javascript:void(0);\">下一页</a></li>";
+                        pages+=nextPage;
+                    }else {
+                        var nextPage="<li class=\"threeword\" id=\"nextPage\"><a href=\"javascript:void(0);\">下一页</a></li>";
+                        pages+=nextPage;
+                    }
+                    var endPage="<li class=\"threeword\" onclick=\"getMyOrderByPage("+cid+","+totalPage+",\'"+rows+"\')\"><a href=\"javascript:void(0);\">末页</a></li>";
+                    $("#pageNum").html(pages);
+
+
+                    $.each(data.list, function (index, obj) {
+                        container.append(' <dl class="newslist-box clearfix">\n' +
+                            '                                <dt class="newslist-pic">\n' +
+                            '                                    <img src="images/news-pic1.jpg"/>\n' +
+                            '                                </dt>\n' +
+                            '                                <dd class="newslist-txt">\n' +
+                            '                                    <a href="news-con.html" class="newslist-font24">' + obj.state + '</a>\n' +
+                            '                                    <ul class="newslist-ul">\n' +
+                            '                                        <li class="newslist-li">\n' +
+                            '                                            <p class="newslist-time">' + obj.time + '</p>\n' +
+                            '                                        </li>\n' +
+                            '                                        <li class="newslist-li">\n' +
+                            '                                            <a href="news-con.html" class="newslist-con">提到牛排，脑子里就会想到焦棕褐色、表面扶着香甜的肉汁，切开后的粉红肉质，入口之后留下的满口肉香。吃牛排其实是非常讲究的，精致的牛肉配上美味的香料，加以烹调，是款待尊贵客人的最佳美食。</a>\n' +
+                            '                                        </li>\n' +
+                            '                                        <li class="newslist-li"><a class="newslist-link" href="news-con.html">&lt;阅读全文&gt;</a>\n' +
+                            '                                        </li>\n' +
+                            '                                    </ul>\n' +
+                            '                                </dd>\n' +
+                            '                            </dl>\n' +
+                            '                            <span class="news-line">\n' +
+                            '                            <img src="images/news-line.png"/>\n' +
+                            '                        </span>')
+                    })
+                }
+            });
+        }
+
+        $(function () {
+            getMyOrderByPage(1, 1, 5);
+            $("#ticket_a").click(function () {
+                getMyOrderByPage(1, 1, 5)
+            })
+            $("#hotal_a").click(function () {
+                getMyOrderByPage(2, 1, 5)
+            })
+            $("#bus_a").click(function () {
+                getMyOrderByPage(3, 1, 5)
+            })
+            $("#guider_a").click(function () {
+                getMyOrderByPage(4, 1, 5)
+            })
+
+        })
+    </script>
+</head>
+<body>
+<!--<div>
+    <img src="images/云台仙境美如画1111.jpg">
+</div>-->
+<div class="container-fluid">
+    <section class="hemai_jx">
+        <div class="jx_top">
+
+            <!-- Nav tabs -->
+            <ul class="jx_tabs" role="tablist">
+                &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<a href="index.html">返回首页</a>
+                <li role="presentation" class="active" id="ticket_a">
+                    <span></span>
+                    <a href="#ticket" aria-controls="popularity" role="tab" data-toggle="tab">门票</a>
+                </li>
+                <li role="presentation" id="hotal_a">
+                    <span></span>
+                    <a href="#hotel" aria-controls="newest" role="tab" data-toggle="tab">酒店</a>
+                </li>
+                <li role="presentation" id="bus_a">
+                    <span></span>
+                    <a href="#bus" aria-controls="theme" role="tab" data-toggle="tab">观光车</a>
+                </li>
+                <li role="presentation" id="guider_a">
+                    <span></span>
+                    <a href="#guider" aria-controls="theme" role="tab" data-toggle="tab">导游</a>
+                </li>
+            </ul>
+        </div>
+        <div class="jx_content">
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="ticket">
+                    <div class="newslist-wrap" id="t">
+
+                        <p class="newslist-tit">门票</p>
+                        <div id="ticketContainer">
+                            <dl class="newslist-box clearfix">
+                                <dt class="newslist-pic">
+                                    <img src="images/news-pic1.jpg"/>
+                                </dt>
+                                <dd class="newslist-txt">
+                                    <a href="news-con.html" class="newslist-font24">西餐代表 牛排的种类和吃法</a>
+                                    <ul class="newslist-ul">
+                                        <li class="newslist-li">
+                                            <p class="newslist-time">2016.12.25</p>
+                                        </li>
+                                        <li class="newslist-li">
+                                            <a href="news-con.html" class="newslist-con">提到牛排，脑子里就会想到焦棕褐色、表面扶着香甜的肉汁，切开后的粉红肉质，入口之后留下的满口肉香。吃牛排其实是非常讲究的，精致的牛肉配上美味的香料，加以烹调，是款待尊贵客人的最佳美食。</a>
+                                        </li>
+                                        <li class="newslist-li"><a class="newslist-link" href="news-con.html">&lt;阅读全文&gt;</a>
+                                        </li>
+                                    </ul>
+                                </dd>
+                            </dl>
+                            <span class="news-line">
+                            <img src="images/news-line.png"/>
+                        </span>
+                        </div>
+                    </div>
+
+                </div>
+                <div role="tabpanel" class="tab-pane" id="hotel">
+                    <div class="newslist-wrap" id="h">
+
+                        <p class="newslist-tit">酒店</p>
+                        <div id="hotelContainer">
+                            <dl class="newslist-box clearfix">
+                                <dt class="newslist-pic">
+                                    <img src="images/news-pic1.jpg"/>
+                                </dt>
+                                <dd class="newslist-txt">
+                                    <a href="news-con.html" class="newslist-font24">西餐代表 牛排的种类和吃法</a>
+                                    <ul class="newslist-ul">
+                                        <li class="newslist-li">
+                                            <p class="newslist-time">2016.12.25</p>
+                                        </li>
+                                        <li class="newslist-li">
+                                            <a href="news-con.html" class="newslist-con">提到牛排，脑子里就会想到焦棕褐色、表面扶着香甜的肉汁，切开后的粉红肉质，入口之后留下的满口肉香。吃牛排其实是非常讲究的，精致的牛肉配上美味的香料，加以烹调，是款待尊贵客人的最佳美食。</a>
+                                        </li>
+                                        <li class="newslist-li"><a class="newslist-link" href="news-con.html">&lt;阅读全文&gt;</a>
+                                        </li>
+                                    </ul>
+                                </dd>
+                            </dl>
+                            <span class="news-line">
+                            <img src="images/news-line.png"/>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="bus">
+                    <div class="newslist-wrap" id="b">
+
+                        <p class="newslist-tit">观光车</p>
+                        <div id="busContainer">
+                            <dl class="newslist-box clearfix">
+                                <dt class="newslist-pic">
+                                    <img src="images/news-pic1.jpg"/>
+                                </dt>
+                                <dd class="newslist-txt">
+                                    <a href="news-con.html" class="newslist-font24">西餐代表 牛排的种类和吃法</a>
+                                    <ul class="newslist-ul">
+                                        <li class="newslist-li">
+                                            <p class="newslist-time">2016.12.25</p>
+                                        </li>
+                                        <li class="newslist-li">
+                                            <a href="news-con.html" class="newslist-con">提到牛排，脑子里就会想到焦棕褐色、表面扶着香甜的肉汁，切开后的粉红肉质，入口之后留下的满口肉香。吃牛排其实是非常讲究的，精致的牛肉配上美味的香料，加以烹调，是款待尊贵客人的最佳美食。</a>
+                                        </li>
+                                        <li class="newslist-li"><a class="newslist-link" href="news-con.html">&lt;阅读全文&gt;</a>
+                                        </li>
+                                    </ul>
+                                </dd>
+                            </dl>
+                            <span class="news-line">
+                            <img src="images/news-line.png"/>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="guider">
+                    <div class="newslist-wrap" id="g">
+
+                        <p class="newslist-tit">导游</p>
+                        <div id="guiderContainer">
+                            <dl class="newslist-box clearfix">
+                                <dt class="newslist-pic">
+                                    <img src="images/news-pic1.jpg"/>
+                                </dt>
+                                <dd class="newslist-txt">
+                                    <a href="news-con.html" class="newslist-font24">西餐代表 牛排的种类和吃法</a>
+                                    <ul class="newslist-ul">
+                                        <li class="newslist-li">
+                                            <p class="newslist-time">2016.12.25</p>
+                                        </li>
+                                        <li class="newslist-li">
+                                            <a href="news-con.html" class="newslist-con">提到牛排，脑子里就会想到焦棕褐色、表面扶着香甜的肉汁，切开后的粉红肉质，入口之后留下的满口肉香。吃牛排其实是非常讲究的，精致的牛肉配上美味的香料，加以烹调，是款待尊贵客人的最佳美食。</a>
+                                        </li>
+                                        <li class="newslist-li"><a class="newslist-link" href="news-con.html">&lt;阅读全文&gt;</a>
+                                        </li>
+                                    </ul>
+                                </dd>
+                            </dl>
+                            <span class="news-line">
+                            <img src="images/news-line.png"/>
+                        </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<!--	<div class="clearfix table-wrap" id="tab-span">
+            <span class="table-item"><a href="index.html"><font size="5" color="black">首页</font></a></span>
+            <span class="table-item">门票</span>
+            <span class="table-item">酒店</span>
+            <span class="table-item">观光车</span>
+            <span class="table-item">导游</span>
+    </div>
+    <div id="table-div">
+        <div class="table-pic table-show clearfix">
+            &lt;!&ndash;<a href="shop-con.html" class="shop-wrap shop-right">
+                <span class="shop-pic">
+                    <img src="images/shop-pic1.jpg" alt="" />
+                </span>
+                <p class="shop-tit">门票</p>
+            </a>
+            <a href="shop-con.html" class="shop-wrap shop-right">
+                <span class="shop-pic">
+                    <img src="images/shop-pic2.jpg" alt="" />
+                </span>
+                <p class="shop-tit">酒店</p>
+            </a>
+            <a href="shop-con.html" class="shop-wrap">
+                <span class="shop-pic">
+                    <img src="images/shop-pic3.jpg" alt="" />
+                </span>
+                <p class="shop-tit">观光车</p>
+            </a>
+            <a href="shop-con.html" class="shop-wrap shop-right">
+                <span class="shop-pic">
+                    <img src="images/shop-pic4.jpg" alt="" />
+                </span>
+                <p class="shop-tit">导游</p>
+            </a>
+
+            <a href="shop-con.html" class="shop-wrap">
+                <span class="shop-pic">
+                    <img src="images/shop-pic6.jpg" alt="" />
+                </span>
+                <p class="shop-tit">北京朝阳区店</p>
+            </a>&ndash;&gt;
+            <ul id="u">
+
+                <li>
+                    <div class="img"><img src="images/04-search_03.jpg" alt=""></div>
+                    <div class="text1">
+                        <p>浪花朵朵旅行普吉岛皇帝岛珊瑚岛香蕉船拖拽伞水上项目</p>
+                        <br/>
+                        <p>1-2月出发，网付立享￥1099/2人起！爆款位置有限，抢完即止！</p>
+                    </div>
+                    <div class="price">
+                        <p class="price_num">
+                            <span>&yen;</span>
+                            <span>99</span>
+                            <span>起</span>
+                        </p>
+                        <p><a href="route_detail.html">查看详情</a></p>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+        <div class="table-pic clearfix">
+            <a href="shop-con.html" class="shop-wrap">
+                <span class="shop-pic">
+                    <img src="images/shop-pic3.jpg" alt="" />
+                </span>
+                <p class="shop-tit">上海朝阳区店</p>
+            </a>
+        </div>
+        <div class="table-pic clearfix">
+            <a href="shop-con.html" class="shop-wrap shop-right">
+                <span class="shop-pic">
+                    <img src="images/shop-pic4.jpg" alt="" />
+                </span>
+                <p class="shop-tit">厦门朝阳区店</p>
+            </a>
+            <a href="shop-con.html" class="shop-wrap">
+                <span class="shop-pic">
+                    <img src="images/shop-pic6.jpg" alt="" />
+                </span>
+                <p class="shop-tit">厦门朝阳区店</p>
+            </a>
+        </div>
+        <div class="table-pic clearfix">
+            <a href="shop-con.html" class="shop-wrap shop-right">
+                <span class="shop-pic">
+                    <img src="images/shop-pic5.jpg" alt="" />
+                </span>
+                <p class="shop-tit">广州朝阳区店</p>
+            </a>
+        </div>
+        <div class="table-pic clearfix">
+            <a href="shop-con.html" class="shop-wrap shop-right">
+                <span class="shop-pic">
+                    <img src="images/shop-pic2.jpg" alt="" />
+                </span>
+                <p class="shop-tit">深圳朝阳区店</p>
+            </a>
+        </div>
+
+
+    </div>-->
+<div class="container">
+    <nav>
+        <ul class="pagination" id="pageNum">
+        </ul>
+    </nav>
+</div>
+<br>
+<br>
+<br>
+<br>
+</body>
+
+<!--<script type="text/javascript">
+    //导航当前项切换
+    $(".nav-item").click(function(){
+        $(this).parent("li").siblings().children().removeClass("nav-active");
+        //点击对象的父级（li）的兄弟级（li）的子集（a）移除类
+        $(this).addClass("nav-active");
+        //给点击对象添加类
+    });
+    //美食系列当前项切换
+    $(".table-item").click(function(){
+        $(this).siblings().removeClass("table-active");
+        $(this).addClass("table-active");
+    });
+    //美食系列table切换
+    var oSpan = document.getElementById("tab-span");
+        var spans = oSpan.querySelectorAll("span");
+        var oDiv  = document.getElementById("table-div");
+        var divs = oDiv.querySelectorAll("div");
+        var last=spans[0];
+        for(var i=0;i<spans.length;i++){
+                spans[i].index=i;  //给每一个按钮添加一个自定义属性，存储的是他们对应的索引值；
+                spans[i].onclick=function(){
+                    divs[last.index].style.display="none"; //上一个对应的div，让他隐藏
+                    divs[this.index].style.display="block"; //当前点击按钮对应的div显示
+                    last=this; 	//把上一次点击的对象更新成当前点击的对象
+                };
+            };
+</script>-->
+</html>

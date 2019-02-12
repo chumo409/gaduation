@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/jquery-3.3.1.js"></script>
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script src="js/include.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/common.css" rel="stylesheet">
+
+    <script>
+
+        function getTravelsByPage(currentPage, rows) {
+
+            $("#container").html("");
+            $.ajax({
+                // 编写json格式，设置属性和值
+                url: "travels/getTravelsByPage",
+                //contentType:"application/json;charset=UTF-8",
+                //解析json对象为标准的json串
+                data: "currentPage=" + currentPage + "&rows=" + rows + "",
+                type: "post",
+                success: function (data) {
+                    var totalPage=data.totalPage;
+                    var pages="";
+                    var begin;
+                    var end;
+                    if (totalPage>10){
+                        if (currentPage<=5){
+                            begin=1;end=10
+                        }
+                        else if (currentPage>totalPage-4){
+                            begin=totalPage-10;
+                            end=totalPage;
+                        } else {
+                            begin=currentPage-5;
+                            end=currentPage+4;
+                        }
+                    }else {
+                        begin=1;
+                        end=totalPage;
+                    }
+                    if (currentPage==1){
+                        pages=pages+"<li class=\"threeword\" ><a href=\"#\">上一页</a></li>";
+                    }else {
+                        var lastPage=currentPage-1;
+                        pages=pages+"<li class=\"threeword\" onclick=\"getTravelsByPage("+lastPage+",\'"+rows+"\')\" ><a href=\"#\">上一页</a></li>";
+                    }
+
+                    for (var i = begin; i <= end; i++) {
+                        if(currentPage==i) {
+                            var everyPage=" <li class=\"active\" onclick=\"getTravelsByPage("+i+",'"+rows+"')\"><a href=\"javascript:void(0)\">"+i+"</a></li>";
+                            //var everyPage="<li onclick=\'load("+i+","+cid+",'"+rname+"')' class=\"curPage\"><a href='javascript:void(0)'>"+i+"</a></li>";
+                        }else {
+                            var everyPage=" <li onclick=\"getTravelsByPage("+i+",'"+rows+"')\"><a href=\"javascript:void(0)\">"+i+"</a></li>";
+                            //var everyPage="<li onclick='load("+i+","+cid+",'"+rname+"')'><a href='javascript:void(0)'>"+i+"</a></li>";
+                        }
+                        pages =pages+everyPage;
+
+                    }
+
+                    if (currentPage<totalPage){
+                        var next=currentPage+1;
+                        var nextPage="<li class=\"threeword\" onclick=\"getTravelsByPage("+next+",\'"+rows+"\')\" id=\"nextPage\"><a href=\"javascript:void(0);\">下一页</a></li>";
+                        pages+=nextPage;
+                    }else {
+                        var nextPage="<li class=\"threeword\" id=\"nextPage\"><a href=\"javascript:void(0);\">下一页</a></li>";
+                        pages+=nextPage;
+                    }
+                    var endPage="<li class=\"threeword\" onclick=\"getTravelsByPage("+totalPage+",\'"+rows+"\')\"><a href=\"javascript:void(0);\">末页</a></li>";
+                    $("#pageNum").html(pages);
+
+
+                    $.each(data.list, function (index, obj) {
+                        $("#container").append('<a href="#"> <div class="row total">\n' +
+                            '            <div class="col-md-12">\n' +
+                            '                <span>'+obj.title+'</span><br>\n' +
+                            '                <font size="4">'+obj.content+'</font>\n' +
+                            '                <div id="images">\n' +
+                            '                   \n' +
+                            '                </div>\n' +
+                            '                <p>'+obj.time+'</p>\n' +
+                            '                <hr/>\n' +
+                            '               </div>\n' +
+                            '        </div>\n' +
+                            '        </a>')
+                        $.each(obj.imageList,function (index, imgs) {
+                            $("#images").append('<img src="'+imgs.image+'" alt="...">')
+                        })
+                    })
+
+
+
+                }
+            });
+        }
+
+
+
+
+     /*  function getTravelsByPage(currentPage) {
+           $.ajax({
+               // 编写json格式，设置属性和值
+               url: "travels/getTravelsByPage",
+               //contentType:"application/json;charset=UTF-8",
+               //解析json对象为标准的json串
+               data: "currentPage=" + currentPage,
+               type: "post",
+               success:function (data) {
+                    $.each(data,function (index, obj) {
+                        $("#container").append('<a href="#"> <div class="row total">\n' +
+                            '            <div class="col-md-12">\n' +
+                            '                <span>'+obj.title+'</span><br>\n' +
+                            '                <font size="4">'+obj.content+'</font>\n' +
+                            '                <div id="images">\n' +
+                            '                   \n' +
+                            '                </div>\n' +
+                            '                <p>'+obj.time+'</p>\n' +
+                            '                <hr/>\n' +
+                            '               </div>\n' +
+                            '        </div>\n' +
+                            '        </a>');
+                        $.each(obj.imageList,function (index, imgs) {
+                            $("#images").append('<img src="'+imgs.image+'" alt="...">')
+                        })
+                    })
+               }
+           })
+       }*/
+
+       $(function () {
+           getTravelsByPage(1,6);
+       })
+    </script>
+</head>
+<body>
+<div id="header"></div>
+<!--<div class="container" style="margin-top: 15px">
+    <div class="row">
+
+        <div class="col-md-8">
+
+            <div class="well well-lg" style="height: 150px">
+                <div style="height: auto;float: left">
+                    <img src="../images/link6.png" alt="..." class="img-circle">
+                </div>
+                        <div style="float:left; margin-left: 30px">
+                            <font size="5">这里是游记标题</font><br>
+                                <span>这里是用户名</span>
+                                <span>这里是发表日期</span>
+                        </div>
+
+                <div style="float: right;margin-top: 70px">
+                    <img src="../images/eye.png"><span>被浏览次数</span>
+                   &lt;!&ndash; <img src="../images/comment2.png">&ndash;&gt;
+                </div>
+            </div>
+
+            <div class="well well-lg" style="height: 150px">
+                <div style="height: auto;float: left">
+                    <img src="../images/link6.png" alt="..." class="img-circle">
+                </div>
+                <div style="float:left; margin-left: 30px">
+                    <font size="5">这里是游记标题</font><br>
+                    <span>这里是用户名</span>
+                    <span>这里是发表日期</span>
+                </div>
+
+                <div style="float: right;margin-top: 90px">
+                    <img src="../images/eye.png"><span>被浏览次数</span>
+                    <img src="../images/comment2.png">
+                </div>
+            </div>
+
+            <div class="well well-lg" style="height: 150px">
+                <div style="height: auto;float: left">
+                    <img src="../images/link6.png" alt="..." class="img-circle">
+                </div>
+                <div style="float:left; margin-left: 30px">
+                    <font size="5">这里是游记标题</font><br>
+                    <span>这里是用户名</span>
+                    <span>这里是发表日期</span>
+                </div>
+
+                <div style="float: right; margin-top: 90px">
+                    <img src="../images/eye.png"><span>被浏览次数</span>
+                    <img src="../images/comment2.png">
+                </div>
+            </div>
+
+            <div class="well well-lg" style="height: 150px">
+                <div style="height: auto;float: left">
+                    <img src="../images/link6.png" alt="..." class="img-circle">
+                </div>
+                <div style="float:left; margin-left: 30px">
+                    <font size="5">这里是游记标题</font><br>
+                    <span>这里是用户名</span>
+                    <span>这里是发表日期</span>
+                </div>
+
+                <div style="float: right;margin-top: 90px">
+                    <img src="../images/eye.png"><span>被浏览次数</span>
+                    <img src="../images/comment2.png">
+                </div>
+            </div>
+
+
+
+
+
+
+        </div>
+        <div class="col-md-4">
+            <div class="well well-lg">
+                活跃用户
+            </div>
+            <div style="border: gainsboro 2px solid">
+
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <span>这里是用户名</span>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <span>这里是用户名</span>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <center>这里是用户名</center>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <span>这里是用户名</span>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <span>这里是用户名</span>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <center>这里是用户名</center>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <span>这里是用户名</span>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <span>这里是用户名</span>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <center>这里是用户名</center>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <span>这里是用户名</span>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <span>这里是用户名</span>
+                    </div>
+                    <div class="col-md-4">
+                        <img src="../images/link6.png" alt="..." class="img-circle">
+                        <center>这里是用户名</center>
+                    </div>
+
+                </div>
+
+
+
+            </div>
+
+
+        </div>
+    </div>
+
+
+</div>-->
+
+<div class="container">
+
+    <div class="row">
+    <div class="col-md-9" id="container">
+
+
+    </div>
+
+
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">活跃用户</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                    <div class="col-md-4  total">
+                        <img src="images/icon_2.jpg">
+                        <p>这里是用户名</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="container">
+    <nav>
+        <ul class="pagination" id="pageNum">
+        </ul>
+    </nav>
+</div>
+<br>
+<br>
+<br>
+<br>
+
+
+<div id="footer"></div>
+
+</body>
+</html>
